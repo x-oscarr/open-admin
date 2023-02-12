@@ -583,10 +583,8 @@ class Grid
         Column::setOriginalGridModels($collection);
 
         $data = $collection->toArray();
-
-        $this->columns->map(function (Column $column) use (&$data) {
-            $data = $column->fill($data);
-
+        $this->columns->map(function (Column $column) use (&$collection, &$data) {
+            $data = $column->fillByCollection($collection, $data);
             $this->columnNames[] = $column->getName();
         });
 

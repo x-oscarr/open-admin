@@ -427,7 +427,7 @@ class Field implements Renderable
         }
 
         if (empty($this->value)) {
-            $this->value = Arr::get($data, $this->column);
+            $this->value = $this->form->model()->{$this->column};
         }
 
         $this->formatValue();

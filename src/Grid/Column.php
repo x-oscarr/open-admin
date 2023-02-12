@@ -572,6 +572,48 @@ class Column
     }
 
     /**
+     * Fill all data to every column (new method, analog of fill() but with collection).
+     *
+     */
+    public function &fillByCollection(\Illuminate\Database\Eloquent\Collection $collection, array &$data): array
+    {
+        foreach ($collection as $key => &$row) {
+            $value = null;
+
+            if(str_contains($this->name, '.')) {
+                $attributes = explode('.', $this->name);
+
+                try {
+                    foreach ($attributes as $k => $attribute) {
+                        $value = $k === 0 ? $row->{$attribute} : $value->{$attribute};
+                    }
+                } catch (RuntimeException $e) {
+                    $value = null;
+                }
+
+            } else {
+                $value = $row->{$this->name};
+            }
+
+            $this->original = $value;
+            $value = $this->htmlEntityEncode($value);
+
+            Arr::set($data[$key], $this->name, $value);
+
+            if ($this->isDefinedColumn()) {
+                $this->useDefinedColumn();
+            }
+
+            if ($this->hasDisplayCallbacks()) {
+                $value = $this->callDisplayCallbacks($this->original, $key);
+                Arr::set($data[$key], $this->name, $value);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * If current column is a defined column.
      *
      * @return bool

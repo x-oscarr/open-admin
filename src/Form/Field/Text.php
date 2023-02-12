@@ -11,15 +11,13 @@ class Text extends Field
     use PlainInput;
     use HasValuePicker;
 
-    /**
-     * @var string
-     */
-    protected $icon = 'icon-pencil-alt';
+    protected string $icon = 'icon-pencil-alt';
 
-    /**
-     * @var bool
-     */
-    protected $withoutIcon = false;
+    protected ?string $prefix = null;
+
+    protected ?string $suffix = null;
+
+    protected bool $withoutIcon = false;
 
     /**
      * Set custom fa-icon.
@@ -36,6 +34,46 @@ class Text extends Field
     }
 
     /**
+     * Set prefix
+     *
+     * @param string $prefix
+     *
+     * @return $this
+     */
+    public function prefix(string $prefix): self
+    {
+        $this->prefix = $prefix;
+
+        return $this;
+    }
+
+    /**
+     * Set suffix
+     *
+     * @param string $suffix
+     *
+     * @return $this
+     */
+    public function suffix(string $suffix): self
+    {
+        $this->suffix = $suffix;
+
+        return $this;
+    }
+
+    /**
+     * show no icon in font of input.
+     *
+     * @return $this
+     */
+    public function withoutIcon(bool $value = true): self
+    {
+        $this->withoutIcon = $value;
+
+        return $this;
+    }
+
+    /**
      * Render this filed.
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
@@ -44,9 +82,14 @@ class Text extends Field
     {
         $this->initPlainInput();
 
-        if (!$this->withoutIcon) {
-            $this->prepend('<i class="'.$this->icon.'"></i>');
+        if (!$this->withoutIcon || $this->prefix) {
+            $this->prepend(($this->withoutIcon ? '' : '<i class="'.$this->icon.'"></i>') . $this->prefix);
         }
+
+        if($this->suffix) {
+            $this->append($this->suffix);
+        }
+
         $this->defaultAttribute('type', 'text')
             ->defaultAttribute('id', $this->id)
             ->defaultAttribute('name', $this->elementName ?: $this->formatName($this->column))
@@ -97,17 +140,5 @@ class Text extends Field
         $datalist .= '</datalist>';
 
         return $this->append($datalist);
-    }
-
-    /**
-     * show no icon in font of input.
-     *
-     * @return $this
-     */
-    public function withoutIcon()
-    {
-        $this->withoutIcon = true;
-
-        return $this;
     }
 }
