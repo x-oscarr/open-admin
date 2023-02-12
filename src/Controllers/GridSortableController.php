@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Controllers;
+namespace OpenAdmin\Admin\Controllers;
 
 use Exception;
 use Illuminate\Http\Request;

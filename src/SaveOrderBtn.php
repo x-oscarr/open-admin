@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenAdmin\Admin\GridSortable;
+namespace OpenAdmin\Admin;
 
 use OpenAdmin\Admin\Grid\Tools\AbstractTool;
 

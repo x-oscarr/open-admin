@@ -63,7 +63,7 @@
         "laravel": {
             "providers": [
                 "OpenAdmin\\Admin\\AdminServiceProvider",
-                "OpenAdmin\\Admin\\GridSortable\\GridSortableServiceProvider"
+                "OpenAdmin\\Admin\\GridSortableServiceProvider"
             ],
             "aliases": {
                 "Admin": "OpenAdmin\\Admin\\Facades\\Admin"

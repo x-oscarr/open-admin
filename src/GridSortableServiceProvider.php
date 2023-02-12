@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenAdmin\Admin\GridSortable;
+namespace OpenAdmin\Admin;
 
 use Illuminate\Support\ServiceProvider;
 
