@@ -49,9 +49,13 @@ trait CanCascadeFields
         }
 
         if (is_array($value)) {
-            $value = array_map('strval', $value);
+            $value = array_map(function ($item) {
+                if(is_bool($value) && !$value) return '0';
+                return strval($value);
+            }, $value);
         } else {
-            $value = strval($value);
+            if(is_bool($value) && !$value) return '0';
+            return strval($value);
         }
     }
 
@@ -160,7 +164,9 @@ trait CanCascadeFields
      */
     protected function getValueByJs()
     {
-        return addslashes(old($this->column(), $this->value()));
+        $value = old($this->column(), $this->value());
+        if(is_bool($value) && !$value) return '0';
+        return addslashes($value);
     }
 
     /**

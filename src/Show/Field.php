@@ -393,6 +393,49 @@ HTML;
     }
 
     /**
+     * Show field as bool.
+     *
+     * @param ?bool $overwrite
+     * @param array $titles
+     *
+     * @return Field
+     */
+    public function bool(?bool $overwrite = null, array $titles = []): Field
+    {
+        return $this->unescape()->as(function ($value) use ($overwrite, $titles) {
+            $title = ($overwrite ?? $value && array_key_exists($value, $titles))
+                ? "<span class='text-success fw-bolder'>$titles[$value]</span>"
+                : "<span class='text-danger fw-bolder'>$titles[$value]</span>";
+            $icon = ($overwrite ?? $value)
+                ? '<i class="icon-check text-success"></i>'
+                : '<i class="icon-times text-danger"></i>';
+
+            return $icon . $title;
+        });
+
+    }
+
+    /**
+     * Show field as datetime.
+     *
+     * @param ?string $format
+     * @param ?string $timeZone
+     *
+     * @return Field
+     */
+    public function datetime(?string $format = null, ?string $timeZone = null): Field
+    {
+        return $this->unescape()->as(function ($value) use ($format, $timeZone) {
+            $datetime = (new DateTime(
+                $value,
+                new DateTimeZone($timeZone ?? config('admin.timezone')))
+            )->format($format ?? config('admin.datetimeFormat'));
+
+            return "<span class='fw-bolder'>$datetime</span>";
+        });
+    }
+
+    /**
      * Show field as json code.
      *
      * @return Field
