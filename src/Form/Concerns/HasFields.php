@@ -44,6 +44,7 @@ use OpenAdmin\Admin\Form\Field;
  * @method Field\Password       password($column, $label = '')
  * @method Field\Decimal        decimal($column, $label = '')
  * @method Field\Html           html($html, $label = '')
+ * @method Field\View           view($view, $value = [])
  * @method Field\Tags           tags($column, $label = '')
  * @method Field\Icon           icon($column, $label = '')
  * @method Field\Embeds         embeds($column, $label = '', $callback)
@@ -110,6 +111,7 @@ trait HasFields
         'url'               => Field\Url::class,
         'year'              => Field\Year::class,
         'html'              => Field\Html::class,
+        'view'              => Field\View::class,
         'tags'              => Field\Tags::class,
         'icon'              => Field\Icon::class,
         'multipleFile'      => Field\MultipleFile::class,
