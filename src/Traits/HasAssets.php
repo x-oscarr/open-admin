@@ -67,7 +67,8 @@ trait HasAssets
         'vendor/open-admin/toastify-js/toastify.css',
         'vendor/open-admin/flatpickr/flatpicker-custom.css',
         'vendor/open-admin/choicesjs/styles/choices.min.css',
-        'vendor/open-admin/sortablejs/nestable.css',
+        'vendor/open-admin/sortablejs/nestable.css', // TODO: remove it
+        'vendor/open-admin/nested-sort/nested-sort.css',
 
         // custom open admin stuff
         // generated through sass
@@ -85,7 +86,8 @@ trait HasAssets
         'vendor/open-admin/toastify-js/toastify.js',
         'vendor/open-admin/flatpickr/flatpickr.min.js',
         'vendor/open-admin/choicesjs/scripts/choices.min.js',
-        'vendor/open-admin/sortablejs/Sortable.min.js',
+        'vendor/open-admin/sortablejs/Sortable.min.js', // TODO: remove it
+        'vendor/open-admin/nested-sort/nested-sort.min.js',
 
         'vendor/open-admin/open-admin/js/polyfills.js',
         'vendor/open-admin/open-admin/js/helpers.js',
