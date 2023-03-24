@@ -2,6 +2,8 @@
 
 namespace OpenAdmin\Admin\Controllers;
 
+use Symfony\Component\HttpFoundation\Request;
+
 trait HasResourceActions
 {
     /**
@@ -38,6 +40,9 @@ trait HasResourceActions
      */
     public function store()
     {
+        if(($r = request()) && $r->get('_order')) {
+            return $this->treeSave($r);
+        }
         return $this->getForm()->store();
     }
 
@@ -51,5 +56,31 @@ trait HasResourceActions
     public function destroy($id)
     {
         return $this->getForm()->destroy($id);
+    }
+
+    /**
+     * Saving orders for tree structure
+     *
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\Response
+     */
+    protected function treeSave(Request $request)
+    {
+        $validated = $request->validate([
+            '_order' => ['required', 'json'],
+        ]);
+        $orders = json_decode($validated['_order'], true, 512, JSON_THROW_ON_ERROR);
+
+        foreach ($orders as $item) {
+            $model = $this->getForm()->model();
+            $d = $model::findOrFail($item['id'])
+                ->update([
+                    $model->getOrderColumn() => $item['order'],
+                    $model->getParentColumn() => $item['parent'] ?? null
+                ]);
+        }
+
+        return $this->getForm()->redirectAfterStore();
     }
 }

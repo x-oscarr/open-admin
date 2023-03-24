@@ -1,16 +1,6 @@
 <div class="card">
 
     <div class="card-header">
-
-        <div class="btn-group">
-            <a class="btn btn-primary btn-sm {{ $id }}-tree-tools" data-action="expand" title="{{ trans('admin.expand') }}" onclick="admin.tree.expand();">
-                <i class="icon-plus-square"></i>&nbsp;{{ trans('admin.expand') }}
-            </a>
-            <a class="btn btn-primary btn-sm {{ $id }}-tree-tools" data-action="collapse" title="{{ trans('admin.collapse') }}" onclick="admin.tree.collapse();">
-                <i class="icon-minus-square"></i>&nbsp;{{ trans('admin.collapse') }}
-            </a>
-        </div>
-
         @if($useSave)
         <div class="btn-group">
             <a class="btn btn-info btn-sm {{ $id }}-save" title="{{ trans('admin.save') }}" onclick="admin.tree.save();"><i class="icon-save"></i><span class="hidden-xs">&nbsp;{{ trans('admin.save') }}</span></a>
@@ -35,12 +25,8 @@
 
     </div>
     <!-- /.box-header -->
-    <div class="card-body table-responsive no-padding">
-        <div class="dd" id="{{ $id }}">
-            <ol class="dd-list">
-                @each($branchView, $items, 'branch')
-            </ol>
-        </div>
+    <div class="card-body no-padding">
+        <div class="tree" id="{{ $id }}"></div>
     </div>
     <!-- /.box-body -->
 </div>

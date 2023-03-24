@@ -622,7 +622,7 @@ class Form implements Renderable
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    protected function redirectAfterStore()
+    public function redirectAfterStore()
     {
         $resourcesPath = $this->resource(0);
         $key = $this->model->getKey();

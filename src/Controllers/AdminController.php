@@ -5,6 +5,7 @@ namespace OpenAdmin\Admin\Controllers;
 use Illuminate\Routing\Controller;
 use OpenAdmin\Admin\Layout\Content;
 use OpenAdmin\Admin\Traits\HasCustomHooks;
+use Symfony\Component\HttpFoundation\Request;
 
 class AdminController extends Controller
 {

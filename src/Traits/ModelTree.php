@@ -3,6 +3,8 @@
 namespace OpenAdmin\Admin\Traits;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
@@ -37,20 +39,16 @@ trait ModelTree
 
     /**
      * Get children of current node.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function children()
+    public function children(): HasMany
     {
         return $this->hasMany(static::class, $this->parentColumn);
     }
 
     /**
      * Get parent of current node.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function parent()
+    public function parent(): BelongsTo
     {
         return $this->belongsTo(static::class, $this->parentColumn);
     }
@@ -58,57 +56,47 @@ trait ModelTree
     /**
      * @return string
      */
-    public function getParentColumn()
+    public function getParentColumn(): string
     {
         return $this->parentColumn;
     }
 
     /**
      * Set parent column.
-     *
-     * @param string $column
      */
-    public function setParentColumn($column)
+    public function setParentColumn($column): void
     {
         $this->parentColumn = $column;
     }
 
     /**
      * Get title column.
-     *
-     * @return string
      */
-    public function getTitleColumn()
+    public function getTitleColumn(): string
     {
         return $this->titleColumn;
     }
 
     /**
      * Set title column.
-     *
-     * @param string $column
      */
-    public function setTitleColumn($column)
+    public function setTitleColumn($column): void
     {
         $this->titleColumn = $column;
     }
 
     /**
      * Get order column name.
-     *
-     * @return string
      */
-    public function getOrderColumn()
+    public function getOrderColumn(): string
     {
         return $this->orderColumn;
     }
 
     /**
      * Set order column.
-     *
-     * @param string $column
      */
-    public function setOrderColumn($column)
+    public function setOrderColumn($column): void
     {
         $this->orderColumn = $column;
     }
@@ -120,7 +108,7 @@ trait ModelTree
      *
      * @return $this
      */
-    public function withQuery(\Closure $query = null)
+    public function withQuery(\Closure $query = null): self
     {
         $this->queryCallback = $query;
 
@@ -129,23 +117,16 @@ trait ModelTree
 
     /**
      * Format data to tree like array.
-     *
-     * @return array
      */
-    public function toTree()
+    public function toTree(): array
     {
         return $this->buildNestedArray();
     }
 
     /**
      * Build Nested array.
-     *
-     * @param array $nodes
-     * @param int   $parentId
-     *
-     * @return array
      */
-    protected function buildNestedArray(array $nodes = [], $parentId = 0)
+    protected function buildNestedArray(array $nodes = [], $parentId = 0): array
     {
         $branch = [];
 
@@ -170,10 +151,8 @@ trait ModelTree
 
     /**
      * Get all elements.
-     *
-     * @return mixed
      */
-    public function allNodes()
+    public function allNodes(): mixed
     {
         $orderColumn = DB::getQueryGrammar()->wrap($this->orderColumn);
         $byOrder = $orderColumn.' = 0,'.$orderColumn;
@@ -189,12 +168,8 @@ trait ModelTree
 
     /**
      * Set the order of branches in the tree.
-     *
-     * @param array $order
-     *
-     * @return void
      */
-    protected static function setBranchOrder(array $order)
+    protected static function setBranchOrder(array $order): void
     {
         static::$branchOrder = array_flip(Arr::flatten($order));
 
@@ -205,11 +180,8 @@ trait ModelTree
 
     /**
      * Save tree order from a tree like array.
-     *
-     * @param array $tree
-     * @param int   $parentId
      */
-    public static function saveOrder($tree = [], $parentId = 0)
+    public static function saveOrder($tree = [], $parentId = 0): void
     {
         if (empty(static::$branchOrder)) {
             static::setBranchOrder($tree);
@@ -230,13 +202,8 @@ trait ModelTree
 
     /**
      * Get options for Select field in form.
-     *
-     * @param \Closure|null $closure
-     * @param string        $rootText
-     *
-     * @return array
      */
-    public static function selectOptions(\Closure $closure = null, $rootText = 'ROOT')
+    public static function selectOptions(\Closure $closure = null, $rootText = 'ROOT'): array
     {
         $options = (new static())->withQuery($closure)->buildSelectOptions();
 
@@ -245,15 +212,8 @@ trait ModelTree
 
     /**
      * Build options of select field in form.
-     *
-     * @param array  $nodes
-     * @param int    $parentId
-     * @param string $prefix
-     * @param string $space
-     *
-     * @return array
      */
-    protected function buildSelectOptions(array $nodes = [], $parentId = 0, $prefix = '', $space = '&nbsp;')
+    protected function buildSelectOptions(array $nodes = [], $parentId = 0, $prefix = '', $space = '&nbsp;'): array
     {
         $prefix = $prefix ?: '┝'.$space;
 
