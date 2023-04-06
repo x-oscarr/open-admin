@@ -426,7 +426,7 @@ class Field implements Renderable
             return;
         }
 
-        if (empty($this->value)) {
+        if (empty($this->value) && isset($this->form->model()->{$this->column})) {
             $this->value = $this->form->model()->{$this->column};
         }
 

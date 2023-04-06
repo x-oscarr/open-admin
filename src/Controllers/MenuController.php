@@ -74,22 +74,26 @@ class MenuController extends Controller
         $tree = new Tree(new $menuModel());
 
         $tree->disableCreate();
-
-        $tree->branch(function ($branch) {
-            $payload = "<i class='{$branch['icon']}'></i>&nbsp;<strong>{$branch['title']}</strong>";
-
-            if (!isset($branch['children'])) {
-                if (url()->isValidUrl($branch['uri'])) {
-                    $uri = $branch['uri'];
-                } else {
-                    $uri = admin_url($branch['uri']);
-                }
-
-                $payload .= "&nbsp;&nbsp;&nbsp;<a href=\"$uri\" class=\"dd-nodrag\">$uri</a>";
-            }
-
-            return $payload;
+        $tree->column('id');
+        $tree->column('title', __('Title'))->display(function ($id) {
+            return "<i class='{$this->icon}'></i>&nbsp;<strong>{$this->title}</strong>";
         });
+
+//        $tree->branch(function ($branch) {
+//            $payload = "<i class='{$branch['icon']}'></i>&nbsp;<strong>{$branch['title']}</strong>";
+//
+//            if (!isset($branch['children'])) {
+//                if (url()->isValidUrl($branch['uri'])) {
+//                    $uri = $branch['uri'];
+//                } else {
+//                    $uri = admin_url($branch['uri']);
+//                }
+//
+//                $payload .= "&nbsp;&nbsp;&nbsp;<a href=\"$uri\" class=\"dd-nodrag\">$uri</a>";
+//            }
+//
+//            return $payload;
+//        });
 
         return $tree;
     }

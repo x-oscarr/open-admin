@@ -2,23 +2,40 @@
 
 namespace OpenAdmin\Admin\Traits;
 
-use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use OpenAdmin\Admin\Tree;
 
-trait ModelTree
+trait OldModelTree
 {
-    protected static array $branchOrder = [];
-    protected string $parentColumn = 'parent_id';
-    protected string $titleColumn = 'title';
-    protected string $orderColumn = 'order';
-    protected ?Closure $queryCallback = null;
+    /**
+     * @var array
+     */
+    protected static $branchOrder = [];
+
+    /**
+     * @var string
+     */
+    protected $parentColumn = 'parent_id';
+
+    /**
+     * @var string
+     */
+    protected $titleColumn = 'title';
+
+    /**
+     * @var string
+     */
+    protected $orderColumn = 'order';
+
+    /**
+     * @var \Closure
+     */
+    protected $queryCallback;
 
     /**
      * Get children of current node.
@@ -86,8 +103,12 @@ trait ModelTree
 
     /**
      * Set query callback to model.
+     *
+     * @param \Closure|null $query
+     *
+     * @return $this
      */
-    public function withQuery(?Closure $query = null): self
+    public function withQuery(\Closure $query = null): self
     {
         $this->queryCallback = $query;
 
@@ -97,28 +118,52 @@ trait ModelTree
     /**
      * Format data to tree like array.
      */
-    public function toTree(): Collection
+    public function toTree(): array
     {
-        return $this->allNodes()->map(function ($item) {
-            return [
-                'model' => $item,
-                'id' => $item->id,
-                'parent' => $item->parent_id,
-                'text' => $item->id
-            ];
-        });
+        return $this->buildNestedArray();
+    }
+
+    /**
+     * Build Nested array.
+     */
+    protected function buildNestedArray(array $nodes = [], $parentId = 0): array
+    {
+        $branch = [];
+
+        if (empty($nodes)) {
+            $nodes = $this->allNodes();
+        }
+
+        foreach ($nodes as $node) {
+            if ($node[$this->parentColumn] == $parentId) {
+                $children = $this->buildNestedArray($nodes, $node[$this->getKeyName()]);
+
+                if ($children) {
+                    $node['children'] = $children;
+                }
+
+                $branch[] = $node;
+            }
+        }
+
+        return $branch;
     }
 
     /**
      * Get all elements.
      */
-    public function allNodes(): Collection
+    public function allNodes(): mixed
     {
-        $query = $this->newQuery();
-        if ($this->queryCallback instanceof Closure) {
-            $query = call_user_func($this->queryCallback, $query);
+        $orderColumn = DB::getQueryGrammar()->wrap($this->orderColumn);
+        $byOrder = $orderColumn.' = 0,'.$orderColumn;
+
+        $self = new static();
+
+        if ($this->queryCallback instanceof \Closure) {
+            $self = call_user_func($this->queryCallback, $self);
         }
-        return $query->orderBy($this->getOrderColumn())->get();
+
+        return $self->orderByRaw($byOrder)->get()->toArray();
     }
 
     /**
@@ -136,7 +181,7 @@ trait ModelTree
     /**
      * Save tree order from a tree like array.
      */
-    public static function saveOrder($tree = [], $parentId = null): void
+    public static function saveOrder($tree = [], $parentId = 0): void
     {
         if (empty(static::$branchOrder)) {
             static::setBranchOrder($tree);
@@ -158,7 +203,7 @@ trait ModelTree
     /**
      * Get options for Select field in form.
      */
-    public static function selectOptions(Closure $closure = null, $rootText = 'ROOT'): array
+    public static function selectOptions(\Closure $closure = null, $rootText = 'ROOT'): array
     {
         $options = (new static())->withQuery($closure)->buildSelectOptions();
 
@@ -168,7 +213,7 @@ trait ModelTree
     /**
      * Build options of select field in form.
      */
-    protected function buildSelectOptions(iterable $nodes = [], $parentId = 0, $prefix = '', $space = '&nbsp;'): array
+    protected function buildSelectOptions(array $nodes = [], $parentId = 0, $prefix = '', $space = '&nbsp;'): array
     {
         $prefix = $prefix ?: '┝'.$space;
 
@@ -200,6 +245,16 @@ trait ModelTree
     /**
      * {@inheritdoc}
      */
+    public function delete()
+    {
+        $this->where($this->parentColumn, $this->getKey())->delete();
+
+        return parent::delete();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected static function boot()
     {
         parent::boot();
@@ -223,15 +278,5 @@ trait ModelTree
 
             return $branch;
         });
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function delete()
-    {
-        $this->where($this->parentColumn, $this->getKey())->delete();
-
-        return parent::delete();
     }
 }

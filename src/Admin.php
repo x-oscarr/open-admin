@@ -167,8 +167,7 @@ class Admin
 
         /** @var Menu $menuModel */
         $menuModel = new $menuClass();
-
-        return $this->menu = $menuModel->toTree();
+        return $this->menu = $menuModel->parentNodes();
     }
 
     /**
@@ -179,16 +178,21 @@ class Admin
     public function menuLinks($menu = [])
     {
         if (empty($menu)) {
-            $menu = $this->menu();
+            $menuClass = config('admin.database.menu_model');
+            $menuModel = new $menuClass();
+            $menu = $menuModel->allNodes();
         }
 
         $links = [];
-
         foreach ($menu as $item) {
-            if (!empty($item['children'])) {
-                $links = array_merge($links, $this->menuLinks($item['children']));
+            if ($item->children->isNotEmpty()) {
+                $links = array_merge($links, $this->menuLinks($item->children));
             } else {
-                $links[] = Arr::only($item, ['title', 'uri', 'icon']);
+                $links[] = [
+                    'title' => $item->title,
+                    'uri' => $item->uri,
+                    'icon' => $item->icon,
+                ];
             }
         }
 

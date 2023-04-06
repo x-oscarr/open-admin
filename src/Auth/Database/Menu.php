@@ -2,11 +2,14 @@
 
 namespace OpenAdmin\Admin\Auth\Database;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
 use OpenAdmin\Admin\Traits\DefaultDatetimeFormat;
 use OpenAdmin\Admin\Traits\ModelTree;
+use OpenAdmin\Admin\Traits\OldModelTree;
+use OpenAdmin\Admin\Tree\ModelTreeInterface;
 
 /**
  * Class Menu.
@@ -27,7 +30,10 @@ class Menu extends Model
      *
      * @var array
      */
-    protected $fillable = ['parent_id', 'order', 'title', 'icon', 'uri', 'permission'];
+    protected $fillable = ['id', 'parent_id', 'order', 'title', 'icon', 'uri', 'permission'];
+    protected $attributes = [
+        'parent_id' => 0,
+    ];
 
     /**
      * Create a new Eloquent model instance.
@@ -60,22 +66,31 @@ class Menu extends Model
     }
 
     /**
-     * @return array
+     * @return Collection
      */
-    public function allNodes(): array
+    public function allNodes(): Collection
     {
-        $connection = config('admin.database.connection') ?: config('database.default');
-        $orderColumn = DB::connection($connection)->getQueryGrammar()->wrap($this->orderColumn);
+        return $this->prepareQuery()->get();
+    }
 
-        $byOrder = 'ROOT ASC,'.$orderColumn;
+    public function parentNodes(): Collection
+    {
+        return $this->prepareQuery()->where('parent_id', 0)->get();
+    }
 
-        $query = static::query();
+    public function prepareQuery()
+    {
+        $query = new self();
+        $query->setConnection(config('admin.database.connection') ?: config('database.default'));
+        $query = $query->newQuery();
 
-        if (config('admin.check_menu_roles') !== false) {
-            $query->with('roles');
+        if ($this->queryCallback instanceof Closure) {
+            $query = call_user_func($this->queryCallback, $query);
+            if (config('admin.check_menu_roles') !== false) {
+                $query->with('roles');
+            }
         }
-
-        return $query->selectRaw('*, '.$orderColumn.' ROOT')->orderByRaw($byOrder)->get()->toArray();
+        return $query->orderBy($this->getOrderColumn());
     }
 
     /**
