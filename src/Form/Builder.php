@@ -622,14 +622,14 @@ JS;
     public function render(): string
     {
         $this->removeReservedFields();
-
-        $tabObj = $this->form->setTab();
+        // TODO: Figure out why this part of script cause crash with overflow stack (recursion? WTF?)
+        //$tabObj = $this->form->setTab();
 
         $this->addCascadeScript();
 
         $data = [
             'form'   => $this,
-            'tabObj' => $tabObj,
+            //'tabObj' => $tabObj,
             'width'  => $this->width,
             'layout' => $this->form->getLayout(),
         ];

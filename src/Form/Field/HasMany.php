@@ -466,6 +466,10 @@ class HasMany extends Field
             }
 
             foreach ($this->value as $data) {
+                if(!is_array($data)) {
+                    $data = $data->toArray();
+                }
+
                 $key = Arr::get($data, $relation->getRelated()->getKeyName());
 
                 $model = $relation->getRelated()->replicate()->forceFill($data);

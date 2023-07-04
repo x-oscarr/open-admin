@@ -37,17 +37,23 @@ class Row
     protected $key;
 
     /**
+     * @var int
+     */
+    protected int $modelId;
+
+    /**
      * Row constructor.
      *
      * @param mixed $number
      * @param array $data
      * @param mixed $key
      */
-    public function __construct($number, $data, $key)
+    public function __construct($number, $data, $key, $modelId)
     {
         $this->data = $data;
         $this->number = $number;
         $this->key = $key;
+        $this->modelId = $modelId;
 
         $this->attributes = [
             'data-key' => $key,
@@ -63,6 +69,11 @@ class Row
     public function getKey()
     {
         return $this->key;
+    }
+
+    public function getModelId()
+    {
+        return $this->modelId;
     }
 
     /**

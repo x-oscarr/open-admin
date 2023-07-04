@@ -11,6 +11,7 @@ use Illuminate\Support\Traits\Macroable;
 use OpenAdmin\Admin\Admin;
 use OpenAdmin\Admin\Form;
 use OpenAdmin\Admin\Widgets\Form as WidgetForm;
+use OpenAdmin\Admin\Form\Tabs\Tab;
 
 /**
  * Class Field.
@@ -180,7 +181,14 @@ class Field implements Renderable
      *
      * @var Form|WidgetForm
      */
-    protected $form = null;
+    protected $tabForm = null;
+
+    /**
+     * Parent tab
+     *
+     * @var Form\Tabs\Tab|null
+     */
+    protected Tab|null $tab = null;
 
     /**
      * View for field to render.
@@ -1585,6 +1593,22 @@ class Field implements Renderable
         $this->display = $display;
 
         return $this;
+    }
+
+    /**
+     * @param Tab|null $tab
+     */
+    public function setTab(?Tab $tab): void
+    {
+        $this->tab = $tab;
+    }
+
+    /**
+     * @return Tab|null
+     */
+    public function getTab(): ?Tab
+    {
+        return $this->tab;
     }
 
     /**

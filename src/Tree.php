@@ -89,7 +89,7 @@ class Tree extends Grid
         return $this->model()->getOriginalModel()->toTree()->map(function ($item) {
             $item['text'] = View::make($this->views['row'], [
                 'grid' => $this,
-                'row' => $this->rows()->first(fn($row) => $row->model()['id'] == $item['model']->id)
+                'row' => $this->rows()->first(fn($row) => $row->getModelId() == $item['model']->id)
             ])->render();
             return $item;
         });

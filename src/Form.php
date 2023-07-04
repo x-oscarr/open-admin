@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\Str;
@@ -23,7 +24,7 @@ use OpenAdmin\Admin\Form\Concerns\HasHooks;
 use OpenAdmin\Admin\Form\Field;
 use OpenAdmin\Admin\Form\Layout\Layout;
 use OpenAdmin\Admin\Form\Row;
-use OpenAdmin\Admin\Form\Tab;
+use OpenAdmin\Admin\Form\Tabs\Tab;
 use OpenAdmin\Admin\Grid\Tools\BatchEdit;
 use OpenAdmin\Admin\Traits\ShouldSnakeAttributes;
 use Spatie\EloquentSortable\Sortable;
@@ -115,10 +116,16 @@ class Form implements Renderable
      */
     protected static $collectedAssets = [];
 
-    /**
-     * @var Form\Tab
-     */
     protected $tab = null;
+
+
+    /**
+     * The parameter indicates that the following fields should be added under the tab
+     * (sets in the Tab class and checks in __call() magic method)
+     *
+     * @var Tab|null
+     */
+    protected ?Tab $underTab = null;
 
     /**
      * Field rows in form.
@@ -235,46 +242,6 @@ class Form implements Renderable
         $this->setFieldValue($id);
 
         return $this;
-    }
-
-    /**
-     * Use tab to split form.
-     *
-     * @param string  $title
-     * @param Closure $content
-     * @param bool    $active
-     *
-     * @return $this
-     */
-    public function tab($title, Closure $content, bool $active = false): self
-    {
-        $this->setTab()->append($title, $content, $active);
-
-        return $this;
-    }
-
-    /**
-     * Get Tab instance.
-     *
-     * @return Tab
-     */
-    public function getTab()
-    {
-        return $this->tab;
-    }
-
-    /**
-     * Set Tab instance.
-     *
-     * @return Tab
-     */
-    public function setTab(): Tab
-    {
-        if ($this->tab === null) {
-            $this->tab = new Tab($this);
-        }
-
-        return $this->tab;
     }
 
     /**
@@ -1063,13 +1030,7 @@ class Form implements Renderable
 
         $this->callEditing();
 
-        $data = $this->model->toArray();
-
-        $this->fields()->each(function (Field $field) use ($data) {
-            if (!in_array($field->column(), $this->ignored, true)) {
-                $field->fill($data);
-            }
-        });
+        $this->fillFields();
     }
 
     /**
@@ -1485,6 +1446,7 @@ class Form implements Renderable
         $this->layout = new Layout($this);
     }
 
+
     /**
      * Getter.
      *
@@ -1537,6 +1499,11 @@ class Form implements Renderable
 
             $element = new $className($column, array_slice($arguments, 1));
 
+            // If the field should display under the tab, then set the tab (null default)
+            if($element instanceof Field && $element !== $this->getUnderTab()) {
+                $element->setTab($this->getUnderTab());
+            }
+
             $this->pushField($element);
 
             return $element;
@@ -1553,5 +1520,39 @@ class Form implements Renderable
     public function getLayout(): Layout
     {
         return $this->layout;
+    }
+
+    /**
+     * @param Tab|null $underTab
+     */
+    public function setUnderTab(Tab $tab, \Closure $closure): Collection
+    {
+        $this->underTab = $tab;
+        $closure($this);
+        $this->underTab = null;
+        return $this->fields()->filter(fn(Field $field) => $field->getTab() === $tab);
+    }
+
+    /**
+     * @return Tab|null
+     */
+    public function getUnderTab(): ?Tab
+    {
+        return $this->underTab;
+    }
+
+    /**
+     * Fill all fields in the form by values from form model
+     *
+     * @return void
+     */
+    public function fillFields()
+    {
+        $data = $this->model->toArray();
+        $this->fields()->each(function (Field $field) use ($data) {
+            if (!in_array($field->column(), $this->ignored, true)) {
+                $field->fill($data);
+            }
+        });
     }
 }

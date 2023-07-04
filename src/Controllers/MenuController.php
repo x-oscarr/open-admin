@@ -74,8 +74,7 @@ class MenuController extends Controller
         $tree = new Tree(new $menuModel());
 
         $tree->disableCreate();
-        $tree->column('id');
-        $tree->column('title', __('Title'))->display(function ($id) {
+        $tree->column('id', __('id'))->display(function ($id) {
             return "<i class='{$this->icon}'></i>&nbsp;<strong>{$this->title}</strong>";
         });
 

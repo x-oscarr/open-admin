@@ -5,6 +5,7 @@ namespace OpenAdmin\Admin;
 use Closure;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Relations;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
@@ -604,7 +605,12 @@ class Grid
     protected function buildRows(array $data, Collection $collection)
     {
         $this->rows = collect($data)->map(function ($model, $number) use ($collection) {
-            return new Row($number, $model, $collection->get($number)->getKey());
+            return new Row(
+                $number,
+                $model,
+                $collection->get($number)->getKey(),
+                $collection->get($number)->id
+            );
         });
 
         if ($this->rowsCallback) {
