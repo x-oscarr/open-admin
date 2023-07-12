@@ -100,12 +100,16 @@ class Panel implements Renderable
     /**
      * Set title for this panel.
      *
-     * @param string $title
+     * @param string|\Closure $title
      *
      * @return $this
      */
     public function title($title)
     {
+        if(is_callable($title)) {
+            $title = $title($this->getParent()->getModel());
+        }
+
         $this->data['title'] = $title;
 
         return $this;

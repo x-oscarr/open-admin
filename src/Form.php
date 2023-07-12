@@ -1548,7 +1548,7 @@ class Form implements Renderable
      */
     public function fillFields()
     {
-        $data = $this->model->toArray();
+        $data = $this->model();
         $this->fields()->each(function (Field $field) use ($data) {
             if (!in_array($field->column(), $this->ignored, true)) {
                 $field->fill($data);

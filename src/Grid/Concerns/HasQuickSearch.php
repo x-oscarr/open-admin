@@ -69,7 +69,9 @@ trait HasQuickSearch
         if (is_array($this->search)) {
             $this->model()->where(function (Builder $builder) use ($query) {
                 foreach ($this->search as $column) {
-                    $this->addWhereLikeBinding($builder, $column, true, '%'.$query.'%');
+                    Str::contains($column, ['.', '->'])
+                        ? $this->builderWithRelations($builder, $column, '%'.$query.'%')
+                        : $this->addWhereLikeBinding($builder, $column, true, '%'.$query.'%');
                 }
             });
         } elseif (is_null($this->search)) {
@@ -77,6 +79,13 @@ trait HasQuickSearch
                 $this->addWhereBindings($builder, $query);
             });
         }
+    }
+
+    protected function builderWithRelations(Builder $builder, $column, $pattern) {
+        $chain = explode(Str::contains($column, '.') ? '.' : '->', $column);
+        $column = array_pop($chain);
+        $relation = implode('.', $chain);
+        $builder->orWhereRelation($relation, $column, 'like', $pattern);
     }
 
     /**

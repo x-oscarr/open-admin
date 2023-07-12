@@ -110,7 +110,7 @@ class Select extends Field
     {
         if (Str::contains($field, '.')) {
             $field = $this->formatName($field);
-            $class = str_replace(['[', ']'], '_', $field);
+            $class = str_replace(['[', ']', ':'], '_', $field);
         } else {
             $class = $field;
         }
@@ -307,7 +307,7 @@ JS;
     public function choicesObjName($field = false)
     {
         if (empty($field)) {
-            $field = str_replace([' ', '-'], ['_', '_'], $this->getElementClassString());
+            $field = str_replace([' ', '-', ':'], ['_'], $this->getElementClassString());
         }
 
         return 'choices_'.$field;

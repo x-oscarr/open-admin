@@ -54,6 +54,8 @@ use OpenAdmin\Admin\Form\Field;
  * @method Field\Listbox        listbox($column, $label = '')
  * @method Field\Table          table($column, $label, $builder)
  * @method Field\Timezone       timezone($column, $label = '')
+ * @method Field\Map            map($column, $label = '')
+ * @method Field\Address        address($column, $label = '')
  * @method Field\KeyValue       keyValue($column, $label = '')
  * @method Field\ListField      list($column, $label = '')
  * @method Field\HasMany        hasMany($relationName, $label = '', $callback)
@@ -128,6 +130,7 @@ trait HasFields
         'belongsTo'         => Field\BelongsTo::class,
         'belongsToMany'     => Field\BelongsToMany::class,
         'tabbed'            => Field\Tabbed::class,
+        'address'           => Field\Address::class,
     ];
 
     /**

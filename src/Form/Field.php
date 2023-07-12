@@ -5,6 +5,7 @@ namespace OpenAdmin\Admin\Form;
 use Closure;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
@@ -353,8 +354,11 @@ class Field implements Renderable
         $column = is_array($this->column) ? current($this->column) : $this->column;
 
         $label = $arguments[0] ?? ucfirst($column);
-
-        return str_replace(['.', '_', '->'], ' ', $label);
+        $translated = trans($label);
+//        if($translated === $label) {
+//            $translated = str_replace(['.', '_', '->'], ' ', $label);
+//        }
+        return $translated;
     }
 
     /**
@@ -427,18 +431,28 @@ class Field implements Renderable
         if (is_array($this->column)) {
             foreach ($this->column as $key => $column) {
                 if (empty($this->value[$key])) {
-                    $this->value[$key] = Arr::get($data, $column);
+                    $this->value[$key] = self::getValueFromModel($data, $column);
                 }
             }
 
             return;
         }
 
-        if (empty($this->value) && isset($this->form->model()->{$this->column})) {
-            $this->value = $this->form->model()->{$this->column};
+        if (empty($this->value)) {
+            $this->value = self::getValueFromModel($data, $this->column);
         }
 
         $this->formatValue();
+    }
+
+    protected static function getValueFromModel(Model $model, string $column)
+    {
+        // Transform chain like "foo.bar.baz" to $model->foo->bar->baz
+        return array_reduce(explode('.', $column), function ($o, $p) {
+            return is_numeric($p)
+                ? ($o[$p] ?? null)
+                : ($o->$p ?? null);
+        }, $model);
     }
 
     /**
@@ -1330,7 +1344,7 @@ class Field implements Renderable
         if (!$this->elementClass) {
             $name = $this->elementName ?: $this->formatName($this->column);
 
-            $this->elementClass = (array) str_replace(['[', ']'], '_', $name);
+            $this->elementClass = (array) str_replace(['[', ']', ':'], '_', $name);
         }
 
         return $this->elementClass;

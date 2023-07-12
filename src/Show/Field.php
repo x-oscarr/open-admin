@@ -6,6 +6,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -64,6 +65,21 @@ class Field implements Renderable
      * @var mixed
      */
     protected $value;
+
+    /**
+     * Output content (can be HTML)
+     */
+    protected $content;
+
+    /**
+     * Default value (displays when value equal null)
+     */
+    protected $stub;
+
+    /**
+     * Escaping for default value
+     */
+    protected bool $isEscapeStub = true;
 
     /**
      * @var Collection
@@ -197,8 +213,14 @@ class Field implements Renderable
     public function using(array $values, $default = null)
     {
         return $this->as(function ($value) use ($values, $default) {
-            if (is_null($value)) {
-                return $default;
+            if ($value instanceof Arrayable) {
+                $value = $value->toArray();
+            }
+
+            if(is_array($value)) {
+                return collect((array) $value)->map(function ($item) use (&$values, &$default) {
+                    return Arr::get($values, $item, $default);
+                });
             }
 
             return Arr::get($values, $value, $default);
@@ -338,17 +360,21 @@ HTML;
     /**
      * Show field as a link.
      *
-     * @param string $href
+     * @param string|\Closure $href
      * @param string $target
      *
      * @return Field
      */
     public function link($href = '', $target = '_blank')
     {
-        return $this->unescape()->as(function ($link) use ($href, $target) {
+        return $this->unescape()->as(function ($link, $content) use ($href, $target) {
+            if(is_callable($href)) {
+                $href = $href($link, $this);
+            }
+
             $href = $href ?: $link;
 
-            return "<a href='$href' target='{$target}'>{$link}</a>";
+            return "<a href='$href' target='{$target}'>{$content}</a>";
         });
     }
 
@@ -361,13 +387,13 @@ HTML;
      */
     public function label($style = 'success')
     {
-        return $this->unescape()->as(function ($value) use ($style) {
-            if ($value instanceof Arrayable) {
-                $value = $value->toArray();
+        return $this->unescape()->as(function ($value, $content) use (&$style) {
+            if ($content instanceof Arrayable) {
+                $content = $content->toArray();
             }
 
-            return collect((array) $value)->map(function ($name) use ($style) {
-                return "<span class='badge bg-{$style}'>$name</span>";
+            return collect((array) $content)->map(function ($item) use (&$style) {
+                return "<span class='badge bg-{$style}'>$item</span>";
             })->implode('&nbsp;');
         });
     }
@@ -375,34 +401,72 @@ HTML;
     /**
      * Show field as badges.
      *
-     * @param string $style
+     * @param array $style - an array with styles for each value [value => style]
+     * @param string $default -  default style if no matches were found
      *
      * @return Field
      */
-    public function badge($style = 'primary')
+    public function badge(array $style, string $default = '')
     {
-        return $this->unescape()->as(function ($value) use ($style) {
+        return $this->unescape()->as(function ($value, $content) use (&$style, &$default) {
             if ($value instanceof Arrayable) {
                 $value = $value->toArray();
             }
 
-            return collect((array) $value)->map(function ($name) use ($style) {
+            $content = $content instanceof Arrayable
+                ? $content->toArray()
+                : (array)$content;
+
+            return collect((array) $value)->map(function ($item, $key) use (&$style, &$default, &$content) {
+                $style = Arr::get($style, $item, $default);
+                $name = $content[$key] ?? $item;
                 return "<span class='badge bg-{$style}'>$name</span>";
             })->implode('&nbsp;');
         });
     }
 
     /**
+     * Add a `dot` before column text.
+     *
+     * @param array  $options
+     * @param string $default
+     *
+     * @return $this
+     */
+    public function dot(array $style, string $default = '')
+    {
+        return $this->unescape()->as(function ($value, $content) use (&$style, &$default) {
+            if ($value instanceof Arrayable) {
+                $value = $value->toArray();
+            }
+
+            if ($content instanceof Arrayable) {
+                $content = $content->toArray();
+            }
+
+            return collect((array) $value)->map(function ($name) use (&$style, &$default, &$content) {
+                $style = Arr::get($style, $name, $default);
+
+                return "<span class=\"bg-{$style}\" style='width: 8px;height: 8px;padding: 0;border-radius: 50%;display: inline-block;'></span>&nbsp;$content";
+            })->implode('&nbsp;&nbsp;');
+        });
+    }
+
+    /**
      * Show field as bool.
      *
-     * @param ?bool $overwrite
-     * @param array $titles
+     * @param ?bool $overwrite -
+     * @param array $titles - Title for each value (true and false)
      *
      * @return Field
      */
-    public function bool(?bool $overwrite = null, array $titles = []): Field
+    public function bool(?bool $overwrite = null, iterable $titles = []): Field
     {
         return $this->unescape()->as(function ($value) use ($overwrite, $titles) {
+            if(empty($titles)) {
+                $titles = ['No', 'Yes'];
+            }
+
             $title = ($overwrite ?? $value && array_key_exists($value, $titles))
                 ? "<span class='text-success fw-bolder'>$titles[$value]</span>"
                 : "<span class='text-danger fw-bolder'>$titles[$value]</span>";
@@ -461,6 +525,15 @@ HTML;
         });
     }
 
+    public function address(?\Closure $closure = null)
+    {
+        $this->setView('admin::show.address');
+        if(is_callable($closure)) {
+            return $closure($this);
+        }
+        return $this;
+    }
+
     /**
      * Show readable filesize for giving integer size.
      *
@@ -493,6 +566,19 @@ HTML;
         }
 
         return $this->fileTypesIcons[$filetype];
+    }
+
+    /**
+     * Set view of field
+     *
+     * @param string|\Closure $view
+     *
+     * @return $this
+     */
+    public function setView($view)
+    {
+        $this->view = is_string($view) ? $view : $view($this);
+        return $this;
     }
 
     /**
@@ -541,7 +627,7 @@ HTML;
                 $this->value = $model->getAttribute($this->name);
             }
         }
-
+        $this->content = $this->value;
         return $this;
     }
 
@@ -589,6 +675,16 @@ HTML;
             'field' => $field,
         ];
 
+        return $this;
+    }
+
+    /**
+     * Set default value
+     */
+    public function setDefault($defaultValue, bool $isHtml = false)
+    {
+        $this->stub = $defaultValue;
+        $this->isEscapeStub = !$isHtml;
         return $this;
     }
 
@@ -670,8 +766,14 @@ HTML;
      */
     protected function variables()
     {
+        if(is_null($this->value)) {
+            $this->content = $this->stub;
+            $this->escape = $this->isEscapeStub;
+        }
+
         return [
-            'content'   => $this->value,
+            'value'     => $this->value,
+            'content'   => $this->content,
             'escape'    => $this->escape,
             'label'     => $this->getLabel(),
             'wrapped'   => $this->border,
@@ -688,9 +790,10 @@ HTML;
     {
         if ($this->showAs->isNotEmpty()) {
             $this->showAs->each(function ($callable) {
-                $this->value = $callable->call(
+                $this->content = $callable->call(
                     $this->parent->getModel(),
-                    $this->value
+                    $this->value,
+                    $this->content,
                 );
             });
         }

@@ -163,6 +163,20 @@ class InstallCommand extends Command
     }
 
     /**
+     * Create routes file.
+     *
+     * @return void
+     */
+    protected function createNavigationFile()
+    {
+        $file = $this->directory.'/navigation.php';
+
+        $contents = $this->getStub('navigation');
+        $this->laravel['files']->put($file, $contents);
+        $this->line('<info>Navigation file was created:</info> '.str_replace(base_path(), '', $file));
+    }
+
+    /**
      * Get stub contents.
      *
      * @param $name
