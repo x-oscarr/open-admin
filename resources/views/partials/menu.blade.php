@@ -12,6 +12,8 @@
                 @else
                     <span>{{ admin_trans($item->title) }}</span>
                 @endif
+
+                <span class="menu-badge">{!! $item->badge !!}</span>
             </a>
         </li>
     @else
@@ -23,6 +25,8 @@
                 @else
                     <span>{{ admin_trans($item->title) }}</span>
                 @endif
+
+                <span class="menu-badge">{!! $item->allBadges !!}</span>
             </a>
             <ul id="collapse-{{ $item->id }}" class="btn-toggle-nav list-unstyled collapse fw-normal pb-1">
                 @foreach($item->children as $item)

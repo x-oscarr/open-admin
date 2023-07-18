@@ -85,6 +85,7 @@ class AdminServiceProvider extends ServiceProvider
         $this->registerPublishing();
         $this->compatibleBlade();
         $this->bladeDirectives();
+        $this->registerMenuBadges();
     }
 
     /**
@@ -212,5 +213,10 @@ class AdminServiceProvider extends ServiceProvider
         Blade::directive('endbox', function ($expression) {
             return "'); echo \$box->render(); ?>";
         });
+    }
+
+    protected function registerMenuBadges()
+    {
+        require_once admin_path('menu_badges.php');
     }
 }

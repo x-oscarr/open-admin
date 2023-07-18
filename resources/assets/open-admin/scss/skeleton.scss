@@ -277,6 +277,11 @@ main#main footer.fixed-bottom {
     li > ul > li.active a {
         color: #72afd2;
     }
+
+    .menu-badge {
+        float: right;
+        margin-top: 2px;
+    }
 }
 
 .side-menu-closed {

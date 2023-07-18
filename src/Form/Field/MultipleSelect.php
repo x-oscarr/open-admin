@@ -2,6 +2,7 @@
 
 namespace OpenAdmin\Admin\Form\Field;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -68,7 +69,7 @@ class MultipleSelect extends Select
             }
         }
 
-        if (!is_array($relations)) {
+        if (!is_array($relations) && !$relations instanceof Arrayable) {
             $this->applyCascadeConditions();
 
             return;

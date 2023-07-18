@@ -159,6 +159,11 @@ class EmbeddedForm
      */
     public function prepare($input)
     {
+        // For collapsing logic, if embeded form inside of cascade field.
+        if(!$input) {
+            return $input;
+        }
+
         foreach ($input as $key => $record) {
             $this->setFieldOriginalValue($key);
             $input[$key] = $this->prepareValue($key, $record);

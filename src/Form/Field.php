@@ -428,10 +428,19 @@ class Field implements Renderable
     {
         $this->data = $data;
 
+        if(!$data) {
+            return;
+        }
+
         if (is_array($this->column)) {
             foreach ($this->column as $key => $column) {
                 if (empty($this->value[$key])) {
-                    $this->value[$key] = self::getValueFromModel($data, $column);
+                    if($data instanceof Model) {
+                        $this->value[$key] = self::getValueFromModel($data, $column);
+                    } else {
+                        $this->value = Arr::get($data, $column);
+                    }
+
                 }
             }
 
@@ -439,7 +448,11 @@ class Field implements Renderable
         }
 
         if (empty($this->value)) {
-            $this->value = self::getValueFromModel($data, $this->column);
+            if($data instanceof Model) {
+                $this->value = self::getValueFromModel($data, $this->column);
+            } else {
+                $this->value = Arr::get($data, $this->column);
+            }
         }
 
         $this->formatValue();
@@ -604,7 +617,7 @@ class Field implements Renderable
         }
 
         //do not use required attribute with tabs
-        if ($this->form && $this->form->getTab()) {
+        if ($this->form) {
             return;
         }
 

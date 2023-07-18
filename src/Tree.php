@@ -17,7 +17,7 @@ class Tree extends Grid
      * @var array
      */
     protected $options = [
-        'show_pagination'        => true,
+        'show_pagination'        => false,
         'show_tools'             => true,
         'show_filter'            => true,
         'show_exporter'          => true,
@@ -45,7 +45,7 @@ class Tree extends Grid
      * @var string
      */
     protected $views = [
-        'tree' => 'admin::tree',
+        'tree' => 'admin::tree.tree',
         'row' => 'admin::tree.row',
     ];
     /**
@@ -77,6 +77,8 @@ class Tree extends Grid
         $this->elementId .= uniqid();
         $this->tools = new Tools($this);
         $this->setView($this->views['tree']);
+        // Cause error without this parameter (for tree all items should be displayble)
+        $this->disablePagination(true);
     }
 
     /**

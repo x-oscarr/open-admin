@@ -10,6 +10,7 @@ use InvalidArgumentException;
 use OpenAdmin\Admin\Auth\Database\Menu;
 use OpenAdmin\Admin\Controllers\AuthController;
 use OpenAdmin\Admin\Layout\Content;
+use OpenAdmin\Admin\Navigation\Navigation;
 use OpenAdmin\Admin\Traits\HasAssets;
 use OpenAdmin\Admin\Widgets\Navbar;
 
@@ -192,6 +193,7 @@ class Admin
                     'title' => $item->title,
                     'uri' => $item->uri,
                     'icon' => $item->icon,
+                    'badge' => $item->badge ?? null
                 ];
             }
         }

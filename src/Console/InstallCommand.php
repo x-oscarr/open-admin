@@ -81,6 +81,7 @@ class InstallCommand extends Command
 
         $this->createBootstrapFile();
         $this->createRoutesFile();
+        $this->createMenuBadgesFile();
     }
 
     /**
@@ -174,6 +175,15 @@ class InstallCommand extends Command
         $contents = $this->getStub('navigation');
         $this->laravel['files']->put($file, $contents);
         $this->line('<info>Navigation file was created:</info> '.str_replace(base_path(), '', $file));
+    }
+
+    protected function createMenuBadgesFile()
+    {
+        $file = $this->directory.'/menu_badges.php';
+
+        $contents = $this->getStub('menu_badges');
+        $this->laravel['files']->put($file, $contents);
+        $this->line('<info>Menu Badges file was created:</info> '.str_replace(base_path(), '', $file));
     }
 
     /**

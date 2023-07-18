@@ -50,8 +50,8 @@ trait CanCascadeFields
 
         if (is_array($value)) {
             $value = array_map(function ($item) {
-                if(is_bool($value) && !$value) return '0';
-                return strval($value);
+                if(is_bool($item) && !$item) return '0';
+                return strval($item);
             }, $value);
         } else {
             if(is_bool($value) && !$value) return '0';

@@ -7,6 +7,6 @@
                 <label class="btn btn-outline-primary" for="{{$name}}-{{$option}}">{{$label}}</label>
             @endforeach
         </div>
-        {{ ($option == old($column, $value)) || ($value === null && in_array($label, $checked)) ?'active':'' }}
+{{--        {{ ($option == old($column, $value)) || ($value === null && in_array($label, $checked)) ?'active':'' }}--}}
 
 @include("admin::form._footer")

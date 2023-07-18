@@ -1,0 +1,7 @@
+<?php
+
+if(!function_exists('simpleBadge')) {
+    function simpleBadge($text, $style = 'secondary') {
+        return "<span class='badge bg-$style'>$text</span>";
+    }
+}

@@ -838,8 +838,19 @@ class Form implements Renderable
         foreach ($this->fields() as $field) {
             $columns = $field->column();
 
-            if ($this->isInvalidColumn($columns, $oneToOneRelation || $field->isJsonType) ||
-                (in_array($columns, $this->relation_fields) && !$isRelationUpdate)) {
+            // The most shit logic, but I don`t have a time to fix it.
+            //
+            // This condition checks if you HAVE a dot in column name and
+            // this is 1-to-1 relation in update preparation  then we don`t have to skip it
+            if ($this->isInvalidColumn($columns, $oneToOneRelation || $field->isJsonType)) {
+                continue;
+            }
+
+            // If this is NOT 1-to-1 relation in update preparation and column in $this->relation_fields
+            // we have to SKIP it
+            // If this is 1-to-1 relation in update preparation column isn`t in $this->relation_fields
+            // we have to SKIP it
+            if($isRelationUpdate xor in_array($columns, $this->relation_fields)) {
                 continue;
             }
 

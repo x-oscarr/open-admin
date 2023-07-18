@@ -3,6 +3,7 @@
 namespace OpenAdmin\Admin\Controllers;
 
 use Illuminate\Routing\Controller;
+use OpenAdmin\Admin\Auth\Database\Menu;
 use OpenAdmin\Admin\Form;
 use OpenAdmin\Admin\Layout\Column;
 use OpenAdmin\Admin\Layout\Content;
@@ -37,16 +38,36 @@ class MenuController extends Controller
                     $permissionModel = config('admin.database.permissions_model');
                     $roleModel = config('admin.database.roles_model');
 
-                    $form->select('parent_id', trans('admin.parent_id'))->options($menuModel::selectOptions());
-                    $form->text('title', trans('admin.title'))->rules('required');
-                    $form->icon('icon', trans('admin.icon'))->default('fa-bars')->rules('required')->help($this->iconHelp());
+                    $form->select('parent_id', trans('admin.parent_id'))
+                        ->options($menuModel::selectOptions());
+                    $form->text('title', trans('admin.title'))
+                        ->rules('required');
+                    $form->icon('icon', trans('admin.icon'))
+                        ->default('fa-bars')->rules('required'
+                        )->help($this->iconHelp());
                     $form->text('uri', trans('admin.uri'));
-                    $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'));
+                    $form->multipleSelect('roles', trans('admin.roles'))
+                        ->options($roleModel::all()->pluck('name', 'id'));
                     if ((new $menuModel())->withPermission()) {
                         $form->select('permission', trans('admin.permission'))->options($permissionModel::pluck('name', 'slug'));
                     }
-                    $form->hidden('_token')->default(csrf_token());
 
+                    $form->radioCard('badge_mode', __('Display badge'))
+                        ->options([
+                            Menu::BADGE_MODE_OFF => 'Off',
+                            Menu::BADGE_MODE_FUNCTION => 'On',
+                        ])
+                        ->default(Menu::BADGE_MODE_OFF)
+                        ->when(Menu::BADGE_MODE_FUNCTION, function ($form) {
+                            $form->embeds('badge_payload', 'Badge settings', function ($form) {
+                                $form->text('function', __('Badge function name'));
+                                $form->tags('arguments', __('Badge function arguments'))
+                                    ->help('Insert the comma (,) for separated arguments. For boolean use: true, false');
+                            });
+
+                        });
+
+                    $form->hidden('_token')->default(csrf_token());
                     $column->append((new Box(trans('admin.new'), $form))->style('success'));
                 });
             });
@@ -73,27 +94,10 @@ class MenuController extends Controller
 
         $tree = new Tree(new $menuModel());
 
-        $tree->disableCreate();
+        $tree->disableCreateButton();
         $tree->column('id', __('id'))->display(function ($id) {
             return "<i class='{$this->icon}'></i>&nbsp;<strong>{$this->title}</strong>";
         });
-
-//        $tree->branch(function ($branch) {
-//            $payload = "<i class='{$branch['icon']}'></i>&nbsp;<strong>{$branch['title']}</strong>";
-//
-//            if (!isset($branch['children'])) {
-//                if (url()->isValidUrl($branch['uri'])) {
-//                    $uri = $branch['uri'];
-//                } else {
-//                    $uri = admin_url($branch['uri']);
-//                }
-//
-//                $payload .= "&nbsp;&nbsp;&nbsp;<a href=\"$uri\" class=\"dd-nodrag\">$uri</a>";
-//            }
-//
-//            return $payload;
-//        });
-
         return $tree;
     }
 
@@ -136,9 +140,20 @@ class MenuController extends Controller
         if ($form->model()->withPermission()) {
             $form->select('permission', trans('admin.permission'))->options($permissionModel::pluck('name', 'slug'));
         }
+        $form->radioCard('badge_mode', __('Display badge'))
+            ->options([
+                Menu::BADGE_MODE_OFF => 'Off',
+                Menu::BADGE_MODE_FUNCTION => 'On',
+            ])
+            ->default(Menu::BADGE_MODE_OFF)
+            ->when(Menu::BADGE_MODE_FUNCTION, function ($form) {
+                $form->embeds('badge_payload', 'Badge settings', function ($form) {
+                    $form->text('function', __('Badge function name'));
+                    $form->tags('arguments', __('Badge function arguments'))
+                        ->help('Insert the comma (,) for separated arguments. For boolean use: true, false');
+                });
 
-        $form->display('created_at', trans('admin.created_at'));
-        $form->display('updated_at', trans('admin.updated_at'));
+            });
 
         return $form;
     }
