@@ -14,7 +14,9 @@
                     </optgroup>
                 @endforeach
              @else
-                <option value=""></option>
+                @if(!isset($attributes_obj['required']))
+                    <option value=""></option>
+                @endif
                 @foreach($options as $select => $option)
                     <option value="{{$select}}" {{ $select == old($column, $value) ?'selected':'' }}>{{$option}}</option>
                 @endforeach

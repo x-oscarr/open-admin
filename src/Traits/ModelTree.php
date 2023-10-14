@@ -161,8 +161,11 @@ trait ModelTree
     public static function selectOptions(Closure $closure = null, $rootText = 'ROOT'): array
     {
         $options = (new static())->withQuery($closure)->buildSelectOptions();
-
-        return collect($options)->prepend($rootText, 0)->all();
+        $options = collect($options);
+        if($rootText) {
+            $options->prepend($rootText, 0);
+        }
+        return $options->toArray();
     }
 
     /**
