@@ -5,6 +5,7 @@ namespace OpenAdmin\Admin;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use OpenAdmin\Admin\Layout\Content;
 
@@ -217,6 +218,8 @@ class AdminServiceProvider extends ServiceProvider
 
     protected function registerMenuBadges()
     {
-        require_once admin_path('menu_badges.php');
+        if(file_exists($badgesPath = admin_path('menu_badges.php'))) {
+            require_once $badgesPath;
+        }
     }
 }

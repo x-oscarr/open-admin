@@ -55,7 +55,8 @@ class CreateAdminTables extends Migration
             $table->string('icon', 50);
             $table->string('uri')->nullable();
             $table->string('permission')->nullable();
-
+            $table->integer('badge_mode')->default(0);
+            $table->json('badge_payload')->nullable()->default(null);
             $table->timestamps();
         });
 
