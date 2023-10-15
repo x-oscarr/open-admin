@@ -608,8 +608,7 @@ class Grid
             return new Row(
                 $number,
                 $model,
-                $collection->get($number)->getKey(),
-                $collection->get($number)->id
+                $collection->get($number)
             );
         });
 

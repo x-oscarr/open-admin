@@ -6,7 +6,7 @@
     @if($scopes->isNotEmpty())
 
     <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-        <span>{{ $label }}</span>
+        <span>{!! $label !!}</span>
         <span class="caret"></span>
         <span class="sr-only">Toggle Dropdown</span>
     </button>

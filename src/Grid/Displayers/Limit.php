@@ -37,9 +37,9 @@ JS;
 
         return <<<HTML
 <div class="limit-text">
+    <a href="javascript:void(0);" class="limit-more"><i class="icon icon-angle-double-down"></i></a>&nbsp;
     <span class="text">{$value}</span>
     <span class="text d-none">{$original}</span>
-    &nbsp;<a href="javascript:void(0);" class="limit-more"><i class="icon icon-angle-double-down"></i></a>
 </div>
 HTML;
     }

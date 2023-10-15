@@ -27,6 +27,8 @@ abstract class RowAction extends GridAction
      */
     protected $asColumn = false;
 
+    protected $target = '_parent';
+
     /**
      * Get primary key value of current row.
      *
@@ -138,7 +140,7 @@ abstract class RowAction extends GridAction
         $icon = $this->getIcon();
 
         if ($href = $this->href()) {
-            return "<a href='{$href}' class='{$linkClass}'>{$icon}<span class='label'>{$this->name()}</span></a>";
+            return "<a href='{$href}' target='{$this->target}' class='{$linkClass}'>{$icon}<span class='label'>{$this->name()}</span></a>";
         }
 
         $this->addScript();

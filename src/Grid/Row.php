@@ -37,9 +37,9 @@ class Row
     protected $key;
 
     /**
-     * @var int
+     * @var \Illuminate\Database\Eloquent\Model
      */
-    protected int $modelId;
+    protected $model;
 
     /**
      * Row constructor.
@@ -48,16 +48,16 @@ class Row
      * @param array $data
      * @param mixed $key
      */
-    public function __construct($number, $data, $key, $modelId)
+    public function __construct($number, $data, $model)
     {
         $this->data = $data;
         $this->number = $number;
-        $this->key = $key;
-        $this->modelId = $modelId;
+        $this->key = $model->getKey();
+        $this->model = $model;
 
         $this->attributes = [
-            'data-key' => $key,
-            'class'    => 'row-'.$key,
+            'data-key' => $this->key,
+            'class'    => 'row-'.$this->key,
         ];
     }
 
@@ -73,7 +73,12 @@ class Row
 
     public function getModelId()
     {
-        return $this->modelId;
+        return $this->model->id;
+    }
+
+    public function getOriginalModel()
+    {
+        return $this->model;
     }
 
     /**
