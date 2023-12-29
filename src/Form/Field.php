@@ -234,7 +234,7 @@ class Field implements Renderable
      *
      * @var bool
      */
-    protected $horizontal = true;
+    protected $horizontal = false;
 
     /**
      * If the form horizontal layout.

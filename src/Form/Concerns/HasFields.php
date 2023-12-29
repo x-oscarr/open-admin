@@ -63,6 +63,7 @@ use OpenAdmin\Admin\Form\Field;
  * @method Field\BelongsTo      belongsTo($column, $selectable, $label = '')
  * @method Field\BelongsToMany  belongsToMany($column, $selectable, $label = '')
  * @method Field\Tabbed         tabbed(\Closure $tabbed)
+ * @method Field\CKEditor       ckeditor($column = '', $arguments = [])
  */
 trait HasFields
 {
@@ -131,6 +132,7 @@ trait HasFields
         'belongsToMany'     => Field\BelongsToMany::class,
         'tabbed'            => Field\Tabbed::class,
         'address'           => Field\Address::class,
+        'ckeditor'          => Field\CKEditor::class,
     ];
 
     /**
