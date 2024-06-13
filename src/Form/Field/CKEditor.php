@@ -5,6 +5,10 @@ namespace OpenAdmin\Admin\Form\Field;
 
 class CKEditor extends Textarea
 {
+    protected static $js = [
+        '/vendor/open-admin/ckeditor4/ckeditor.js',
+    ];
+
     protected $view = 'admin::form.ckeditor';
 
     public function setupImageBrowse()
@@ -15,7 +19,7 @@ class CKEditor extends Textarea
 
     public function render()
     {
-        $config = (array) CKEditor::config('config');
+        $config = config('admin.extensions.ckeditor.config');
         $this->setupImageBrowse();
 
         $config = json_encode(array_merge($config, $this->options));
